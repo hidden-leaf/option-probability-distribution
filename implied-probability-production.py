@@ -12,12 +12,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os 
+from dotenv import load_dotenv
 
 from datetime import timedelta, datetime
 from pandas_market_calendars import get_calendar
 
-polygon_api_key = "KkfCQ7fsZnx0yK4bhX9fD81QplTh0Pf3"
-calendar = get_calendar("NYSE")
+load_dotenv()
+polygon_api_key = os.getenv("POLYGON_API_KEY")
+print('Enter calendar code e.g. NYSE')
+code = str(input())
+calendar = get_calendar(code)
 
 dates = calendar.schedule(start_date = (datetime.today()-timedelta(days=4)), end_date = (datetime.today())).index.strftime("%Y-%m-%d").values
 
@@ -25,7 +30,8 @@ dates = calendar.schedule(start_date = (datetime.today()-timedelta(days=4)), end
 date = dates[-1]
 
 # Your desired ticker
-underlying_ticker = "AAPL"
+print('Enter ticker code')
+underlying_ticker = str(input())
 
 underlying = pd.json_normalize(requests.get(f"https://api.polygon.io/v2/aggs/ticker/{underlying_ticker}/range/1/day/{date}/{date}?adjusted=true&sort=asc&limit=50000&apiKey={polygon_api_key}").json()["results"]).set_index("t")
 underlying.index = pd.to_datetime(underlying.index, unit = "ms", utc = True).tz_convert("America/New_York")

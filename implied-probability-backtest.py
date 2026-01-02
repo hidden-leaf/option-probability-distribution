@@ -13,6 +13,8 @@ import seaborn as sns
 import pytz
 import sqlalchemy
 import mysql.connector
+import os 
+from dotenv import load_dotenv
 
 from datetime import timedelta, datetime
 from pandas_market_calendars import get_calendar
@@ -40,8 +42,11 @@ def close_actual(row):
     elif row["next_closing_price"] < row["atm_strike"]:
         return 0
 
-polygon_api_key = "KkfCQ7fsZnx0yK4bhX9fD81QplTh0Pf3"
-calendar = get_calendar("NYSE")
+load_dotenv()
+polygon_api_key = os.getenv("POLYGON_API_KEY")
+print('Enter calendar code e.g. NYSE')
+code = str(input())
+calendar = get_calendar(code)
 
 tz = pytz.timezone("GMT")
 
