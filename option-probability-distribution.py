@@ -7,6 +7,7 @@ Created in 2023
 
 from feature_functions import intrinsic_value_call, intrinsic_value_put, premium_discount
 
+import datetime
 import requests
 import pandas as pd
 import numpy as np
@@ -22,8 +23,9 @@ from datetime import timedelta, datetime
 # on weekdays, just use the date = datetime.today().strftime() line.
 load_dotenv()
 polygon_api_key = os.getenv("POLYGON_API_KEY")
-date = (datetime.today() - timedelta(days=14)).strftime('%Y-%m-%d')
-#date = datetime.today().strftime('%Y-%m-%d')
+today = datetime.today()
+date = (today - timedelta(days=14)).strftime('%Y-%m-%d')
+#date = today.strftime('%Y-%m-%d')
 print('Enter ticker code')
 underlying_ticker = str(input())
 underlying_api_result = requests.get(f"https://api.polygon.io/v2/aggs/ticker/{underlying_ticker}/range/1/day/{date}/{date}?adjusted=true&sort=asc&limit=50000&apiKey={polygon_api_key}")
@@ -34,15 +36,13 @@ underlying_price = underlying["c"].iloc[0]
 #
 
 ticker_call_contracts = pd.json_normalize(requests.get(f"https://api.polygon.io/v3/reference/options/contracts?underlying_ticker={underlying_ticker}&contract_type=call&as_of={date}&expired=false&limit=1000&apiKey={polygon_api_key}").json()["results"])
-print(ticker_call_contracts["days_to_exp"])
-print(ticker_call_contracts["expiration_date"])
 ticker_call_contracts["date"] = pd.to_datetime(ticker_call_contracts["expiration_date"])
 ticker_call_contracts["year"] = ticker_call_contracts["date"].dt.year
 ticker_call_contracts["days_to_exp"] = (ticker_call_contracts["date"] - pd.to_datetime(date)).dt.days
-
 all_expiration_dates = ticker_call_contracts["expiration_date"].drop_duplicates().values
 
 first_available_expiration_date = ticker_call_contracts[ticker_call_contracts["expiration_date"] > date]["expiration_date"].iloc[0]
+#Some stocks don't go past 300 so fail at this stage
 one_year_expiration_date = ticker_call_contracts[ticker_call_contracts["days_to_exp"] >= 300]["expiration_date"].iloc[0]
 
 for expiration_date in all_expiration_dates:
