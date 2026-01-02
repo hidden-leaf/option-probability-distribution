@@ -12,26 +12,30 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import os 
+from dotenv import load_dotenv
 from datetime import timedelta, datetime
 
-polygon_api_key = "your polygon.io api key. Use 'QUANTGALORE' for 10% off."
+
 
 # the code pulls snapshots, so if you're running it on a weekend set the date equal to the last Friday by moving the days = n value
 # on weekdays, just use the date = datetime.today().strftime() line.
-
-date = (datetime.today() - timedelta(days=2)).strftime('%Y-%m-%d')
-# date = datetime.today().strftime('%Y-%m-%d')
-
-underlying_ticker = "ATVI"
-
-underlying = pd.json_normalize(requests.get(f"https://api.polygon.io/v2/aggs/ticker/{underlying_ticker}/range/1/day/{date}/{date}?adjusted=true&sort=asc&limit=50000&apiKey={polygon_api_key}").json()["results"]).set_index("t")
+load_dotenv()
+polygon_api_key = os.getenv("POLYGON_API_KEY")
+date = (datetime.today() - timedelta(days=14)).strftime('%Y-%m-%d')
+#date = datetime.today().strftime('%Y-%m-%d')
+print('Enter ticker code')
+underlying_ticker = str(input())
+underlying_api_result = requests.get(f"https://api.polygon.io/v2/aggs/ticker/{underlying_ticker}/range/1/day/{date}/{date}?adjusted=true&sort=asc&limit=50000&apiKey={polygon_api_key}")
+underlying = pd.json_normalize(underlying_api_result.json()["results"]).set_index("t")
 underlying.index = pd.to_datetime(underlying.index, unit = "ms", utc = True).tz_convert("America/New_York")
 underlying_price = underlying["c"].iloc[0]
 
 #
 
 ticker_call_contracts = pd.json_normalize(requests.get(f"https://api.polygon.io/v3/reference/options/contracts?underlying_ticker={underlying_ticker}&contract_type=call&as_of={date}&expired=false&limit=1000&apiKey={polygon_api_key}").json()["results"])
+print(ticker_call_contracts["days_to_exp"])
+print(ticker_call_contracts["expiration_date"])
 ticker_call_contracts["date"] = pd.to_datetime(ticker_call_contracts["expiration_date"])
 ticker_call_contracts["year"] = ticker_call_contracts["date"].dt.year
 ticker_call_contracts["days_to_exp"] = (ticker_call_contracts["date"] - pd.to_datetime(date)).dt.days
