@@ -119,7 +119,6 @@ for ticker in exchange_tickers:
                 # plt.grid(axis='y')
                 plt.legend()
                 plt.savefig(underlying_ticker, format='png')
-                plt.show()
                 
             except Exception as error:
                 print('Error: ')
