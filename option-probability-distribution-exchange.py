@@ -119,7 +119,7 @@ for ticker in exchange_tickers:
                 # plt.grid(axis='y')
                 plt.legend()
                 plt.savefig(underlying_ticker+'_'+expiration_date+'.png', format='png')
-                
+                plt.close()
             except Exception as error:
                 print('Error: ')
                 print(error)
@@ -128,5 +128,6 @@ for ticker in exchange_tickers:
     except Exception as error:
         print('Error: ')
         print(error)
+        plt.close()
         continue
         

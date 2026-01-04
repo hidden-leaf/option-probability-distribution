@@ -118,5 +118,6 @@ for expiration_date in all_expiration_dates:
     except Exception as error:
         print('Error: ')
         print(error)
+        plt.close()
         continue
         
