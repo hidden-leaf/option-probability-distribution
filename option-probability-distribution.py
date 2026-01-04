@@ -113,8 +113,12 @@ for expiration_date in all_expiration_dates:
         plt.suptitle(f"Expiration Date: {expiration_date}")
         # plt.grid(axis='y')
         plt.legend()
+        plt.savefig(underlying_ticker, format='png')
         plt.show()
-        
+        print('Type yes and hit enter to exit ')
+        finish = str(input())
+        if(finish == 'yes'):
+            break
     except Exception as error:
         print('Error: ')
         print(error)
