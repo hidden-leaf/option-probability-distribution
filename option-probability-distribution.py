@@ -114,6 +114,7 @@ for expiration_date in all_expiration_dates:
         # plt.grid(axis='y')
         plt.legend()
         plt.savefig(underlying_ticker+'_'+expiration_date+'.png', format='png')
+        plt.close()
     except Exception as error:
         print('Error: ')
         print(error)
