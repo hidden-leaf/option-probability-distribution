@@ -24,8 +24,13 @@ from datetime import timedelta, datetime
 load_dotenv()
 polygon_api_key = os.getenv("POLYGON_API_KEY")
 today = datetime.today()
-date = (today - timedelta(days=14)).strftime('%Y-%m-%d')
-#date = today.strftime('%Y-%m-%d')
+print('Enter days before now to get options data for (0 will use todays data)')
+days_before = int(input())
+if(days_before == 0):
+    date = today.strftime('%Y-%m-%d')
+else:
+    date = (today - timedelta(days=days_before)).strftime('%Y-%m-%d')
+
 print('Enter ticker code')
 underlying_ticker = str(input())
 underlying_api_result = requests.get(f"https://api.polygon.io/v2/aggs/ticker/{underlying_ticker}/range/1/day/{date}/{date}?adjusted=true&sort=asc&limit=50000&apiKey={polygon_api_key}")
@@ -111,6 +116,7 @@ for expiration_date in all_expiration_dates:
         plt.show()
         
     except Exception as error:
+        print('Error: ')
         print(error)
         continue
         
